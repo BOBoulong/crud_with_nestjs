@@ -17,7 +17,7 @@ export class RoomTypeController {
   constructor(private readonly roomTypeService: RoomTypeService) {}
 
   @Post()
-  async create(@Body(ValidationPipe) createRoomTypeDto: CreateRoomTypeDto) {
+  create(@Body(ValidationPipe) createRoomTypeDto: CreateRoomTypeDto) {
     return this.roomTypeService.create(createRoomTypeDto);
   }
 
@@ -27,20 +27,20 @@ export class RoomTypeController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return this.roomTypeService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.roomTypeService.findOne(+id);
   }
 
   @Patch(':id')
-  async update(
-    @Param('id') id: number,
+  update(
+    @Param('id') id: string,
     @Body(ValidationPipe) updateRoomTypeDto: UpdateRoomTypeDto,
   ) {
-    return this.roomTypeService.update(id, updateRoomTypeDto);
+    return this.roomTypeService.update(+id, updateRoomTypeDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    return this.roomTypeService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.roomTypeService.remove(+id);
   }
 }

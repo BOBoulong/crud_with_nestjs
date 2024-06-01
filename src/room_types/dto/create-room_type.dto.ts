@@ -24,7 +24,7 @@ export class CreateRoomTypeDto {
   @IsInt()
   readonly hotel_id: number;
 
-  // @IsArray()
-  // @ArrayNotEmpty()
-  // readonly amenities: number[];
+  @IsArray()
+  @ArrayNotEmpty()
+  readonly amenities: number[];
 }

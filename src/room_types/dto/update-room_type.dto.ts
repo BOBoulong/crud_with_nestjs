@@ -8,26 +8,23 @@ import {
 
 export class UpdateRoomTypeDto {
   @IsString()
-  @IsOptional()
-  readonly name?: string;
+  readonly name: string;
 
   @IsString()
   @IsOptional()
   readonly description?: string;
 
   @IsInt()
-  @IsOptional()
-  readonly capacity_adult?: number;
+  readonly capacity_adult: number;
 
   @IsInt()
   @IsOptional()
   readonly capacity_children?: number;
 
   @IsInt()
-  @IsOptional()
-  readonly hotel_id?: number;
+  readonly hotel_id: number;
 
-  // @IsArray()
-  // @ArrayNotEmpty()
-  // readonly amenities: number[];
+  @IsArray()
+  @ArrayNotEmpty()
+  readonly amenities: number[];
 }

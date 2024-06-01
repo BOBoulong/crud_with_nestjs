@@ -5,7 +5,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinTable,
   ManyToMany,
 } from 'typeorm';
 
@@ -32,7 +31,6 @@ export class Amenity {
   @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date;
 
-  @ManyToMany(() => RoomType, { cascade: true })
-  @JoinTable()
+  @ManyToMany(() => RoomType, (roomType) => roomType.amenities)
   roomTypes: RoomType[];
 }
