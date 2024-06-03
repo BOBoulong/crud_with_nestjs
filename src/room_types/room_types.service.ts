@@ -6,6 +6,8 @@ import { CreateRoomTypeDto } from './dto/create-room_type.dto';
 import { UpdateRoomTypeDto } from './dto/update-room_type.dto';
 import { Hotel } from '../hotels/entities/hotel.entity';
 import { Amenity } from '../amenities/entities/amenity.entity';
+import { PaginationDto } from './dto/pagination.dto';
+import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Injectable()
 export class RoomTypeService {
@@ -39,10 +41,33 @@ export class RoomTypeService {
     return this.roomTypeRepository.save(roomType);
   }
 
-  async findAll(): Promise<RoomType[]> {
-    return this.roomTypeRepository.find({
-      relations: ['hotel', 'amenities', 'rooms'],
-    });
+  async findAll(
+    paginationDto: PaginationDto,
+    advancedSearchDto: AdvancedSearchDto,
+  ): Promise<{ data: RoomType[]; total: number }> {
+    const { page, limit } = paginationDto;
+    const { name, description } = advancedSearchDto;
+
+    const query = this.roomTypeRepository
+      .createQueryBuilder('roomType')
+      .leftJoinAndSelect('roomType.hotel', 'hotel')
+      .leftJoinAndSelect('roomType.amenities', 'amenities')
+      .leftJoinAndSelect('roomType.rooms', 'rooms');
+
+    if (name) {
+      query.andWhere('roomType.name ILIKE :name', { name: `%${name}%` });
+    }
+
+    if (description) {
+      query.andWhere('roomType.description ILIKE :description', {
+        description: `%${description}%`,
+      });
+    }
+
+    query.skip((page - 1) * limit).take(limit);
+
+    const [data, total] = await query.getManyAndCount();
+    return { data, total };
   }
 
   async findOne(id: number): Promise<RoomType> {
