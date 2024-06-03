@@ -19,7 +19,6 @@ import { RoomRatesModule } from './room_rates/room_rates.module';
       synchronize: true,
       logging: true,
     }),
-
     AmenitiesModule,
     HotelsModule,
     RoomTypesModule,
