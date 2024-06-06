@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { RoomTypeService } from './room_types.service';
 import { CreateRoomTypeDto } from './dto/create-room_type.dto';
@@ -19,7 +20,7 @@ export class RoomTypeController {
   constructor(private readonly roomTypesService: RoomTypeService) {}
 
   @Post()
-  async create(@Body() createRoomTypeDto: CreateRoomTypeDto) {
+  async create(@Body(ValidationPipe) createRoomTypeDto: CreateRoomTypeDto) {
     const roomType = await this.roomTypesService.create(createRoomTypeDto);
     return {
       statusCode: 201,
@@ -29,18 +30,18 @@ export class RoomTypeController {
   }
 
   @Get()
-  async findAll(
-    @Query() paginationDto: PaginationDto,
-    @Query() advancedSearchDto: AdvancedSearchDto,
+  async getPagination(
+    @Query(ValidationPipe) paginationDto: PaginationDto,
+    @Query(ValidationPipe) advancedSearchDto: AdvancedSearchDto,
   ) {
-    const result = await this.roomTypesService.findAll(
+    const roomType = await this.roomTypesService.getPagination(
       paginationDto,
       advancedSearchDto,
     );
     return {
       statusCode: 200,
-      message: 'Room Types fetched successfully',
-      ...result,
+      message: 'Room Type fetched successfully',
+      data: roomType,
     };
   }
 
@@ -49,7 +50,7 @@ export class RoomTypeController {
     const roomType = await this.roomTypesService.findOne(id);
     return {
       statusCode: 200,
-      message: 'Room Type fetched successfully',
+      message: `Room Type Id ${id} fetched successfully`,
       data: roomType,
     };
   }
@@ -57,7 +58,7 @@ export class RoomTypeController {
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body() updateRoomTypeDto: UpdateRoomTypeDto,
+    @Body(ValidationPipe) updateRoomTypeDto: UpdateRoomTypeDto,
   ) {
     const roomType = await this.roomTypesService.update(id, updateRoomTypeDto);
     return {
@@ -70,6 +71,6 @@ export class RoomTypeController {
   @Delete(':id')
   async remove(@Param('id') id: number) {
     await this.roomTypesService.remove(id);
-    return { statusCode: 200, message: 'Room Type deleted successfully' };
+    return { statusCode: 200, message: 'Room Type deleted successfully.' };
   }
 }

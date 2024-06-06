@@ -6,6 +6,8 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { RoomType } from 'src/room_types/entities/room_type.entity';
 import { Hotel } from 'src/hotels/entities/hotel.entity';
+import { PaginationDto } from './dto/pagination.dto';
+import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Injectable()
 export class RoomService {
@@ -40,9 +42,36 @@ export class RoomService {
     });
     return this.roomRepository.save(room);
   }
+  async getPagination(
+    paginationDto: PaginationDto,
+    advancedSearchDto: AdvancedSearchDto,
+  ): Promise<{ data: Room[]; total: number; limit: number }> {
+    const { page, limit, sortField, sortOrder } = paginationDto;
+    const { name, floor } = advancedSearchDto;
 
-  async findAll(): Promise<Room[]> {
-    return this.roomRepository.find({ relations: ['roomType', 'hotel'] });
+    const query = this.roomRepository
+      .createQueryBuilder('room')
+      .leftJoinAndSelect('room.roomType', 'roomType')
+      .leftJoinAndSelect('room.hotel', 'hotel');
+
+    if (name) {
+      query.andWhere('room.name ILIKE :name', { name: `%${name}%` });
+    }
+
+    if (floor !== undefined) {
+      query.andWhere('room.floor = :floor', { floor });
+    }
+
+    if (sortField && sortOrder) {
+      query.orderBy(`room.${sortField}`, sortOrder);
+    }
+
+    const [data, total] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { data, total, limit };
   }
 
   async findOne(id: number): Promise<Room> {

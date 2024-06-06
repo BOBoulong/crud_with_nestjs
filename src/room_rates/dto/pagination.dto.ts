@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsEnum } from 'class-validator';
 
 export class PaginationDto {
   @IsOptional()
@@ -12,6 +12,6 @@ export class PaginationDto {
   sortField?: string;
 
   @IsOptional()
-  @IsString()
+  @IsEnum(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC';
 }

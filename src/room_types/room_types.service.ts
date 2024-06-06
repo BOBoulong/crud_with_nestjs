@@ -41,12 +41,12 @@ export class RoomTypeService {
     return this.roomTypeRepository.save(roomType);
   }
 
-  async findAll(
+  async getPagination(
     paginationDto: PaginationDto,
     advancedSearchDto: AdvancedSearchDto,
-  ): Promise<{ data: RoomType[]; total: number }> {
-    const { page, limit } = paginationDto;
-    const { name, description } = advancedSearchDto;
+  ): Promise<{ data: RoomType[]; total: number; limit: number }> {
+    const { page, limit, sortField, sortOrder } = paginationDto;
+    const { name, description, capacity_adult } = advancedSearchDto;
 
     const query = this.roomTypeRepository
       .createQueryBuilder('roomType')
@@ -63,11 +63,23 @@ export class RoomTypeService {
         description: `%${description}%`,
       });
     }
+    if (capacity_adult) {
+      query.andWhere('roomType.capacity_adult = :capacity_adult', {
+        capacity_adult,
+        // capacity_adult: `${capacity_adult}`,
+      });
+    }
 
-    query.skip((page - 1) * limit).take(limit);
+    if (sortField && sortOrder) {
+      query.orderBy(`roomType.${sortField}`, sortOrder);
+    }
 
-    const [data, total] = await query.getManyAndCount();
-    return { data, total };
+    const [data, total] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { data, total, limit };
   }
 
   async findOne(id: number): Promise<RoomType> {
@@ -93,6 +105,9 @@ export class RoomTypeService {
       amenities,
     });
     const updatedRoomType = await this.findOne(id);
+    if (!updatedRoomType) {
+      throw new NotFoundException(`RoomType with ID ${id} not found`);
+    }
     return updatedRoomType;
   }
 

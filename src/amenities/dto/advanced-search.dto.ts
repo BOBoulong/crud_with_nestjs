@@ -7,8 +7,12 @@ export class AdvancedSearchDto {
 
   @IsOptional()
   @IsString()
-  description?: string;
+  group?: string;
 
   @IsOptional()
-  capacity_adult?: number;
+  has_extra_charge?: boolean;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

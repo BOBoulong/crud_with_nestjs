@@ -4,11 +4,4 @@ export class AdvancedSearchDto {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  capacity_adult?: number;
 }

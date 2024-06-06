@@ -6,9 +6,5 @@ export class AdvancedSearchDto {
   name?: string;
 
   @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  capacity_adult?: number;
+  floor?: number;
 }

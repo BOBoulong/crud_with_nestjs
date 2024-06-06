@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { HotelsService } from './hotels.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { UpdateHotelDto } from './dto/update-hotel.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Controller('hotels')
 export class HotelsController {
@@ -27,13 +30,29 @@ export class HotelsController {
   }
 
   @Get()
-  findAll() {
-    return this.hotelsService.findAll();
+  async getPagination(
+    @Query(ValidationPipe) paginationDto: PaginationDto,
+    @Query(ValidationPipe) advancedSearchDto: AdvancedSearchDto,
+  ) {
+    const hotel = await this.hotelsService.getPagination(
+      paginationDto,
+      advancedSearchDto,
+    );
+    return {
+      statusCode: 200,
+      message: 'Hotels fetched successfully',
+      data: hotel,
+    };
   }
 
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.hotelsService.findOne(id);
+    const getById = this.hotelsService.findOne(id);
+    return {
+      statusCode: 200,
+      message: `Hotel id ${id} fetched successfully`,
+      data: getById,
+    };
   }
 
   @Patch(':id')
@@ -53,7 +72,7 @@ export class HotelsController {
   async remove(@Param('id') id: number) {
     await this.hotelsService.remove(id);
     return {
-      statusCode: 200,
+      statusCode: 204,
       message: `Hotel id ${id} deleted successfully`,
     };
   }

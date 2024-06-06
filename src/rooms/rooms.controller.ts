@@ -7,23 +7,37 @@ import {
   Delete,
   Get,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { RoomService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Controller('rooms')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
-  @Get()
-  findAll() {
-    return this.roomService.findAll();
-  }
-
   @Post()
   async create(@Body(ValidationPipe) createRoomDto: CreateRoomDto) {
     return this.roomService.create(createRoomDto);
+  }
+
+  @Get()
+  async getPagination(
+    @Query(ValidationPipe) paginationDto: PaginationDto,
+    @Query(ValidationPipe) advancedSearchDto: AdvancedSearchDto,
+  ) {
+    const rooms = await this.roomService.getPagination(
+      paginationDto,
+      advancedSearchDto,
+    );
+    return {
+      statusCode: 200,
+      message: 'Rooms fetched successfully',
+      data: rooms,
+    };
   }
 
   @Get(':id')

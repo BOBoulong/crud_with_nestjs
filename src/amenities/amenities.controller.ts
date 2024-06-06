@@ -7,10 +7,13 @@ import {
   Patch,
   Delete,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { AmenityService } from './amenities.service';
 import { CreateAmenityDto } from './dto/create-amenity.dto';
 import { UpdateAmenityDto } from './dto/update-amenity.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Controller('amenities')
 export class AmenityController {
@@ -27,13 +30,29 @@ export class AmenityController {
   }
 
   @Get()
-  async findAll() {
-    return this.amenityService.findAll();
+  async getPagination(
+    @Query(ValidationPipe) paginationDto: PaginationDto,
+    @Query(ValidationPipe) advancedSearchDto: AdvancedSearchDto,
+  ) {
+    const amenity = await this.amenityService.getPagination(
+      paginationDto,
+      advancedSearchDto,
+    );
+    return {
+      statusCode: 200,
+      message: 'Amenities fetched successfully',
+      data: amenity,
+    };
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.amenityService.findOne(id);
+    const amenity = await this.amenityService.findOne(id);
+    return {
+      statusCode: 200,
+      message: `Amenity fetched successfully.`,
+      data: amenity,
+    };
   }
 
   @Patch(':id')
@@ -47,7 +66,7 @@ export class AmenityController {
     );
     return {
       statusCode: 200,
-      message: `Amenity id ${id} updated successfully.`,
+      message: `Amenity ID ${id} updated successfully.`,
       data: updatedAmenity,
     };
   }
@@ -57,7 +76,7 @@ export class AmenityController {
     await this.amenityService.remove(id);
     return {
       statusCode: 200,
-      message: `Amenity id ${id} deleted successfully.`,
+      message: `Amenity ID ${id} deleted successfully.`,
     };
   }
 }

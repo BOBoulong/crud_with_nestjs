@@ -4,6 +4,8 @@ import { UpdateHotelDto } from './dto/update-hotel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hotel } from './entities/hotel.entity';
 import { Repository } from 'typeorm';
+import { PaginationDto } from './dto/pagination.dto';
+import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Injectable()
 export class HotelsService {
@@ -16,8 +18,29 @@ export class HotelsService {
     return this.hotelRepository.save(hotel);
   }
 
-  async findAll(): Promise<Hotel[]> {
-    return this.hotelRepository.find();
+  async getPagination(
+    PaginationDto: PaginationDto,
+    advancedSearchDto: AdvancedSearchDto,
+  ): Promise<{ data: Hotel[]; total: number; limit: number }> {
+    const { page, limit, sortField, sortOrder } = PaginationDto;
+    const { name } = advancedSearchDto;
+
+    const query = this.hotelRepository.createQueryBuilder('hotel');
+
+    if (name) {
+      query.andWhere('hotel.name ILIKE :name', { name: `%${name}%` });
+    }
+
+    if (sortField && sortOrder) {
+      query.orderBy(`hotel.${sortField}`, sortOrder);
+    }
+
+    const [data, total] = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { data, total, limit };
   }
 
   async findOne(id: number): Promise<Hotel> {

@@ -7,10 +7,13 @@ import {
   Delete,
   Get,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { RoomRateService } from './room_rates.service';
 import { CreateRoomRateDto } from './dto/create-room_rate.dto';
 import { UpdateRoomRateDto } from './dto/update-room_rate.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
 @Controller('room-rates')
 export class RoomRateController {
@@ -18,17 +21,38 @@ export class RoomRateController {
 
   @Post()
   async create(@Body(ValidationPipe) createRoomRateDto: CreateRoomRateDto) {
-    return this.roomRateService.create(createRoomRateDto);
+    const roomRate = await this.roomRateService.create(createRoomRateDto);
+    return {
+      statusCode: 201,
+      message: 'Room rate created successfully',
+      data: roomRate,
+    };
   }
 
   @Get()
-  async findAll() {
-    return this.roomRateService.findAll();
+  async getPagination(
+    @Query(ValidationPipe) paginationDto: PaginationDto,
+    @Query(ValidationPipe) advancedSearchDto: AdvancedSearchDto,
+  ) {
+    const roomRate = await this.roomRateService.getPagination(
+      paginationDto,
+      advancedSearchDto,
+    );
+    return {
+      statusCode: 200,
+      message: 'Room rates fetched successfully',
+      data: roomRate,
+    };
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.roomRateService.findOne(id);
+    const roomRate = await this.roomRateService.findOne(id);
+    return {
+      statusCode: 200,
+      message: 'Room rate fetched successfully',
+      data: roomRate,
+    };
   }
 
   @Patch(':id')
@@ -36,11 +60,20 @@ export class RoomRateController {
     @Param('id') id: number,
     @Body(ValidationPipe) updateRoomRateDto: UpdateRoomRateDto,
   ) {
-    return this.roomRateService.update(id, updateRoomRateDto);
+    const roomRate = await this.roomRateService.update(id, updateRoomRateDto);
+    return {
+      statusCode: 200,
+      message: 'Room rate updated successfully',
+      data: roomRate,
+    };
   }
 
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    return this.roomRateService.remove(id);
+    await this.roomRateService.remove(id);
+    return {
+      statusCode: 200,
+      message: 'Room rate deleted successfully',
+    };
   }
 }
