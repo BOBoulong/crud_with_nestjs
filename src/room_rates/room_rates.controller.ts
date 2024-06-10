@@ -6,8 +6,12 @@ import {
   Patch,
   Delete,
   Get,
-  ValidationPipe,
   Query,
+  BadRequestException,
+  PipeTransform,
+  Injectable,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { RoomRateService } from './room_rates.service';
 import { CreateRoomRateDto } from './dto/create-room_rate.dto';
@@ -15,12 +19,24 @@ import { UpdateRoomRateDto } from './dto/update-room_rate.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
+@Injectable()
+export class CustomParseIntPipe implements PipeTransform<string, number> {
+  transform(value: string): number {
+    const val = parseInt(value, 10);
+    if (isNaN(val)) {
+      throw new BadRequestException(
+        'Numeric string for room rate id is not excepted. Id must be a number',
+      );
+    }
+    return val;
+  }
+}
 @Controller('room-rates')
 export class RoomRateController {
   constructor(private readonly roomRateService: RoomRateService) {}
 
   @Post()
-  async create(@Body(ValidationPipe) createRoomRateDto: CreateRoomRateDto) {
+  async create(@Body() createRoomRateDto: CreateRoomRateDto) {
     const roomRate = await this.roomRateService.create(createRoomRateDto);
     return {
       statusCode: 201,
@@ -31,8 +47,8 @@ export class RoomRateController {
 
   @Get()
   async getPagination(
-    @Query(ValidationPipe) paginationDto: PaginationDto,
-    @Query(ValidationPipe) advancedSearchDto: AdvancedSearchDto,
+    @Query() paginationDto: PaginationDto,
+    @Query() advancedSearchDto: AdvancedSearchDto,
   ) {
     const roomRate = await this.roomRateService.getPagination(
       paginationDto,
@@ -46,19 +62,24 @@ export class RoomRateController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    const roomRate = await this.roomRateService.findOne(id);
-    return {
-      statusCode: 200,
-      message: 'Room rate fetched successfully',
-      data: roomRate,
-    };
+  async findOne(@Param('id', CustomParseIntPipe) id: number) {
+    try {
+      return await this.roomRateService.findOne(id);
+    } catch (error) {
+      if (
+        error instanceof HttpException &&
+        error.getStatus() === HttpStatus.NOT_FOUND
+      ) {
+        throw new HttpException('Room rate not found', HttpStatus.NOT_FOUND);
+      }
+      throw error;
+    }
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body(ValidationPipe) updateRoomRateDto: UpdateRoomRateDto,
+    @Body() updateRoomRateDto: UpdateRoomRateDto,
   ) {
     const roomRate = await this.roomRateService.update(id, updateRoomRateDto);
     return {

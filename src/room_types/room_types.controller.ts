@@ -7,7 +7,11 @@ import {
   Param,
   Delete,
   Query,
-  ValidationPipe,
+  Injectable,
+  BadRequestException,
+  PipeTransform,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { RoomTypeService } from './room_types.service';
 import { CreateRoomTypeDto } from './dto/create-room_type.dto';
@@ -15,12 +19,24 @@ import { UpdateRoomTypeDto } from './dto/update-room_type.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { AdvancedSearchDto } from './dto/advanced-search.dto';
 
+@Injectable()
+export class CustomParseIntPipe implements PipeTransform<string, number> {
+  transform(value: string): number {
+    const val = parseInt(value, 10);
+    if (isNaN(val)) {
+      throw new BadRequestException(
+        'Numeric string for room type id is not excepted. Id must be a number',
+      );
+    }
+    return val;
+  }
+}
 @Controller('room-types')
 export class RoomTypeController {
   constructor(private readonly roomTypesService: RoomTypeService) {}
 
   @Post()
-  async create(@Body(ValidationPipe) createRoomTypeDto: CreateRoomTypeDto) {
+  async create(@Body() createRoomTypeDto: CreateRoomTypeDto) {
     const roomType = await this.roomTypesService.create(createRoomTypeDto);
     return {
       statusCode: 201,
@@ -31,8 +47,8 @@ export class RoomTypeController {
 
   @Get()
   async getPagination(
-    @Query(ValidationPipe) paginationDto: PaginationDto,
-    @Query(ValidationPipe) advancedSearchDto: AdvancedSearchDto,
+    @Query() paginationDto: PaginationDto,
+    @Query() advancedSearchDto: AdvancedSearchDto,
   ) {
     const roomType = await this.roomTypesService.getPagination(
       paginationDto,
@@ -46,19 +62,24 @@ export class RoomTypeController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    const roomType = await this.roomTypesService.findOne(id);
-    return {
-      statusCode: 200,
-      message: `Room Type Id ${id} fetched successfully`,
-      data: roomType,
-    };
+  async findOne(@Param('id', CustomParseIntPipe) id: number) {
+    try {
+      return await this.roomTypesService.findOne(id);
+    } catch (error) {
+      if (
+        error instanceof HttpException &&
+        error.getStatus() === HttpStatus.NOT_FOUND
+      ) {
+        throw new HttpException('Room type not found', HttpStatus.NOT_FOUND);
+      }
+      throw error;
+    }
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: number,
-    @Body(ValidationPipe) updateRoomTypeDto: UpdateRoomTypeDto,
+    @Body() updateRoomTypeDto: UpdateRoomTypeDto,
   ) {
     const roomType = await this.roomTypesService.update(id, updateRoomTypeDto);
     return {
