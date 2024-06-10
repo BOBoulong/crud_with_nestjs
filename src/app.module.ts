@@ -5,6 +5,7 @@ import { HotelsModule } from './hotels/hotels.module';
 import { RoomTypesModule } from './room_types/room_types.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { RoomRatesModule } from './room_rates/room_rates.module';
+import { HotelDetailsModule } from './hotel_details/hotel_details.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RoomRatesModule } from './room_rates/room_rates.module';
     RoomTypesModule,
     RoomsModule,
     RoomRatesModule,
+    HotelDetailsModule,
   ],
 })
 export class AppModule {}
