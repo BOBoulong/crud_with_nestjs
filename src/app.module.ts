@@ -22,10 +22,10 @@ import { HotelDetailsModule } from './hotel_details/hotel_details.module';
     }),
     AmenitiesModule,
     HotelsModule,
+    HotelDetailsModule,
     RoomTypesModule,
     RoomsModule,
     RoomRatesModule,
-    HotelDetailsModule,
   ],
 })
 export class AppModule {}

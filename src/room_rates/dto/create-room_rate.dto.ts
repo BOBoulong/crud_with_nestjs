@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsDecimal } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsDate,
+  IsInt,
+  IsNotEmpty,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateRoomRateDto {
   @IsString()
@@ -8,18 +16,27 @@ export class CreateRoomRateDto {
   @IsOptional()
   readonly description?: string;
 
-  @IsDecimal()
-  readonly default_rate: number;
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  readonly default_rate?: number;
 
-  @IsDecimal()
+  @IsNumber()
+  @Type(() => Number)
   @IsOptional()
   readonly weekend_rate?: number;
 
+  @IsDate()
+  @Type(() => Date)
   @IsOptional()
   readonly start_date?: Date;
 
+  @IsDate()
+  @Type(() => Date)
   @IsOptional()
   readonly end_date?: Date;
 
+  @IsInt()
+  @IsNotEmpty()
   readonly room_type_id: number;
 }

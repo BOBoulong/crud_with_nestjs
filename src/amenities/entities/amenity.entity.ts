@@ -19,17 +19,17 @@ export class Amenity {
   @Column({ type: 'varchar', nullable: false })
   group: string;
 
-  @Column({ default: false })
-  has_extra_charge: boolean;
+  @Column({ name: 'has_extra_charge', default: false })
+  hasExtraCharge: boolean;
 
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 
   @ManyToMany(() => RoomType, (roomType) => roomType.amenities)
   roomTypes: RoomType[];

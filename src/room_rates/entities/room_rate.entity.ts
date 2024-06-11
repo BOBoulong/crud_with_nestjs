@@ -20,23 +20,23 @@ export class RoomRate {
   @Column({ type: 'text', nullable: false })
   description: string;
 
-  @Column({ type: 'decimal', nullable: false })
-  default_rate: number;
+  @Column({ name: 'default_rate', type: 'decimal', nullable: false })
+  defaultRate: number;
 
-  @Column({ type: 'decimal', nullable: true })
-  weekend_rate: number;
+  @Column({ name: 'weekend_rate', type: 'decimal', nullable: true })
+  weekendRate: number;
 
-  @Column({ type: 'date', nullable: true })
-  start_date: Date;
+  @Column({ name: 'start_date', type: 'date', nullable: true })
+  startDate: Date;
 
-  @Column({ type: 'date', nullable: true })
-  end_date: Date;
+  @Column({ name: 'end_date', type: 'date', nullable: true })
+  endDate: Date;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 
   @ManyToOne(() => RoomType, (roomType) => roomType.id)
   @JoinColumn({ name: 'room_type_id' })

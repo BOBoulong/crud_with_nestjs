@@ -21,11 +21,11 @@ export class Room {
   @Column({ type: 'int', nullable: true })
   floor: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'create_at', type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 
   @ManyToOne(() => RoomType, (roomType) => roomType.rooms)
   @JoinColumn({ name: 'room_type_id' })

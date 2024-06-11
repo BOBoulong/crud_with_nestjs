@@ -1,5 +1,6 @@
 import { Amenity } from 'src/amenities/entities/amenity.entity';
 import { Hotel } from 'src/hotels/entities/hotel.entity';
+import { RoomRate } from 'src/room_rates/entities/room_rate.entity';
 import { Room } from 'src/rooms/entities/room.entity';
 import {
   Entity,
@@ -25,17 +26,17 @@ export class RoomType {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'int', default: 1, nullable: false })
-  capacity_adult: number;
+  @Column({ name: 'capacity_adult', type: 'int', default: 1, nullable: false })
+  capacityAdult: number;
 
-  @Column({ type: 'int', nullable: true })
-  capacity_children: number;
+  @Column({ name: 'capacity_children', type: 'int', nullable: true })
+  capacityChildren: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  updatedAt: Date;
 
   @ManyToOne(() => Hotel, (hotel) => hotel.roomTypes)
   @JoinColumn({ name: 'hotel_id' })
@@ -43,6 +44,8 @@ export class RoomType {
 
   @OneToMany(() => Room, (room) => room.roomType)
   rooms: Room[];
+  @OneToMany(() => RoomRate, (roomRate) => roomRate.roomType)
+  roomRates: RoomRate[];
 
   @ManyToMany(() => Amenity, { cascade: true })
   @JoinTable()
