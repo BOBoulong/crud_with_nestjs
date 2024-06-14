@@ -1,18 +1,9 @@
 import { RoomType } from 'src/room_types/entities/room_type.entity';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToMany,
-} from 'typeorm';
+import { Entity, Column, ManyToMany, JoinTable } from 'typeorm';
+import { BaseEntity } from '../../baseEntity/base.entity';
 
 @Entity()
-export class Amenity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Amenity extends BaseEntity {
   @Column({ type: 'varchar', unique: true, nullable: false })
   name: string;
 
@@ -25,12 +16,7 @@ export class Amenity {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
-  updatedAt: Date;
-
   @ManyToMany(() => RoomType, (roomType) => roomType.amenities)
+  @JoinTable()
   roomTypes: RoomType[];
 }

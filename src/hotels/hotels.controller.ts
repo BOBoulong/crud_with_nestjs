@@ -70,7 +70,7 @@ export class HotelsController {
         error instanceof HttpException &&
         error.getStatus() === HttpStatus.NOT_FOUND
       ) {
-        throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+        throw new HttpException('Hotel not found', HttpStatus.NOT_FOUND);
       }
       throw error;
     }

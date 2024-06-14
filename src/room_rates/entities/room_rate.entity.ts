@@ -1,19 +1,9 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { BaseEntity } from '../../baseEntity/base.entity';
 import { RoomType } from 'src/room_types/entities/room_type.entity';
 
 @Entity()
-export class RoomRate {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class RoomRate extends BaseEntity {
   @Column({ type: 'varchar', unique: true, nullable: false })
   name: string;
 
@@ -32,13 +22,7 @@ export class RoomRate {
   @Column({ name: 'end_date', type: 'date', nullable: true })
   endDate: Date;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
-  updatedAt: Date;
-
-  @ManyToOne(() => RoomType, (roomType) => roomType.id)
+  @ManyToOne(() => RoomType, (roomType) => roomType.roomRates)
   @JoinColumn({ name: 'room_type_id' })
   roomType: RoomType;
 }
