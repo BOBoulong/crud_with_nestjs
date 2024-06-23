@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AmenitiesModule } from './amenities/amenities.module';
 import { HotelsModule } from './hotels/hotels.module';
@@ -9,16 +10,24 @@ import { HotelDetailsModule } from './hotel_details/hotel_details.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '12345',
-      database: 'hotel_api',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-      logging: true,
+    ConfigModule.forRoot({
+      envFilePath: ['.env.local', '.env.development', '.env.production'],
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DATABASE_HOST'),
+        port: configService.get<number>('DATABASE_PORT'),
+        username: configService.get<string>('DATABASE_USERNAME'),
+        password: configService.get<string>('DATABASE_PASSWORD'),
+        database: configService.get<string>('DATABASE_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+        logging: true,
+      }),
+      inject: [ConfigService],
     }),
     AmenitiesModule,
     HotelsModule,
