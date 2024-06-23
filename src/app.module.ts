@@ -7,6 +7,8 @@ import { RoomTypesModule } from './room_types/room_types.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { RoomRatesModule } from './room_rates/room_rates.module';
 import { HotelDetailsModule } from './hotel_details/hotel_details.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { HotelDetailsModule } from './hotel_details/hotel_details.module';
     RoomTypesModule,
     RoomsModule,
     RoomRatesModule,
+    UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

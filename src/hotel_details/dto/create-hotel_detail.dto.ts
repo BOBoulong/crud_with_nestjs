@@ -9,21 +9,21 @@ import {
 export class CreateHotelDetailDto {
   @IsString()
   @IsNotEmpty()
-  description: string;
+  readonly description: string;
 
   @IsString()
   @IsNotEmpty()
-  address: string;
+  readonly address: string;
 
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  readonly email: string;
 
   @IsPhoneNumber(null)
   @IsNotEmpty()
-  phone: string;
+  readonly phone: string;
 
   @IsInt()
   @IsNotEmpty()
-  hotel_id: number;
+  readonly hotel_id: number;
 }

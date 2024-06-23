@@ -41,7 +41,9 @@ export class HotelDetailsService {
   ): Promise<{ data: HotelDetail[]; total: number; limit: number }> {
     const { page, limit, sortField, sortOrder } = paginationDto;
     const { description, address, email, phone } = advancedSearchDto;
-    const query = this.hotelDetailRepository.createQueryBuilder('hotelDetail');
+    const query = this.hotelDetailRepository
+      .createQueryBuilder('hotelDetail')
+      .leftJoinAndSelect('hotelDetail.hotel', 'hotel');
     if (description) {
       query.andWhere('hotelDetail.description ILIKE :description', {
         description: `%${description}%`,
@@ -67,7 +69,7 @@ export class HotelDetailsService {
     }
 
     if (sortField && sortOrder) {
-      query.orderBy(`roomType.${sortField}`, sortOrder);
+      query.orderBy(`hotelDetail.${sortField}`, sortOrder);
     }
     const [data, total] = await query
       .skip((page - 1) * limit)
@@ -83,7 +85,7 @@ export class HotelDetailsService {
       relations: ['hotel'],
     });
     if (!hotelDetail)
-      throw new NotFoundException(`HotelDetail with ID ${id} not found`);
+      throw new NotFoundException(`Hotel Detail with ID ${id} not found`);
     return hotelDetail;
   }
 
@@ -91,12 +93,20 @@ export class HotelDetailsService {
     id: number,
     updateHotelDetailDto: UpdateHotelDetailDto,
   ): Promise<HotelDetail> {
-    const hotelDetail = await this.hotelDetailRepository.preload({
-      id,
-      ...updateHotelDetailDto,
+    const hotelDetail = await this.hotelDetailRepository.findOne({
+      where: { id },
+      relations: ['hotel'],
     });
     if (!hotelDetail)
-      throw new NotFoundException(`HotelDetail with ID ${id} not found`);
+      throw new NotFoundException(`Hotel Detail with ID ${id} not found`);
+    if (updateHotelDetailDto.hotel_id) {
+      const hotel = await this.hotelRepository.findOne({
+        where: { id: updateHotelDetailDto.hotel_id },
+      });
+      if (!hotel) throw new NotFoundException(`Hotel with ID ${id} not found`);
+      hotelDetail.hotel = hotel;
+    }
+    Object.assign(hotelDetail, updateHotelDetailDto);
     return this.hotelDetailRepository.save(hotelDetail);
   }
 
@@ -105,7 +115,7 @@ export class HotelDetailsService {
       where: { id },
     });
     if (!hotelDetail)
-      throw new NotFoundException(`HotelDetail with ID ${id} not found`);
+      throw new NotFoundException(`Hotel Detail with ID ${id} not found`);
     await this.hotelDetailRepository.remove(hotelDetail);
   }
 }

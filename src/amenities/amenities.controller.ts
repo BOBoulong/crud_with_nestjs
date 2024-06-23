@@ -7,7 +7,6 @@ import {
   Patch,
   Delete,
   Query,
-  BadRequestException,
   Injectable,
   PipeTransform,
   HttpException,
@@ -18,19 +17,21 @@ import { CreateAmenityDto } from './dto/create-amenity.dto';
 import { UpdateAmenityDto } from './dto/update-amenity.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { AdvancedSearchDto } from './dto/advanced-search.dto';
+import { ok, created, badRequest, notFound } from '../utils/http-status.util';
 
 @Injectable()
 export class CustomParseIntPipe implements PipeTransform<string, number> {
   transform(value: string): number {
     const val = parseInt(value, 10);
     if (isNaN(val)) {
-      throw new BadRequestException(
+      throw badRequest(
         'Numeric string for amenity id is not excepted. Id must be a number',
       );
     }
     return val;
   }
 }
+
 @Controller('amenities')
 export class AmenityController {
   constructor(private readonly amenityService: AmenityService) {}
@@ -38,11 +39,7 @@ export class AmenityController {
   @Post()
   async create(@Body() createAmenityDto: CreateAmenityDto) {
     const createdAmenity = await this.amenityService.create(createAmenityDto);
-    return {
-      statusCode: 201,
-      message: 'Amenity created successfully.',
-      data: createdAmenity,
-    };
+    return created('Amenity created successfully.', createdAmenity);
   }
 
   @Get()
@@ -54,23 +51,20 @@ export class AmenityController {
       paginationDto,
       advancedSearchDto,
     );
-    return {
-      statusCode: 200,
-      message: 'Amenities fetched successfully',
-      data: amenity,
-    };
+    return ok('Amenities fetched successfully', amenity);
   }
 
   @Get(':id')
   async findOne(@Param('id', CustomParseIntPipe) id: number) {
     try {
-      return await this.amenityService.findOne(id);
+      const amenity = await this.amenityService.findOne(id);
+      return ok('Amenity fetched successfully', amenity);
     } catch (error) {
       if (
         error instanceof HttpException &&
         error.getStatus() === HttpStatus.NOT_FOUND
       ) {
-        throw new HttpException('Amenity not found', HttpStatus.NOT_FOUND);
+        return notFound('Amenity not found');
       }
       throw error;
     }
@@ -78,26 +72,19 @@ export class AmenityController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id', CustomParseIntPipe) id: number,
     @Body() updateAmenityDto: UpdateAmenityDto,
   ) {
     const updatedAmenity = await this.amenityService.update(
       id,
       updateAmenityDto,
     );
-    return {
-      statusCode: 200,
-      message: `Amenity ID ${id} updated successfully.`,
-      data: updatedAmenity,
-    };
+    return ok(`Amenity ID ${id} updated successfully.`, updatedAmenity);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id', CustomParseIntPipe) id: number) {
     await this.amenityService.remove(id);
-    return {
-      statusCode: 200,
-      message: `Amenity ID ${id} deleted successfully.`,
-    };
+    return ok(`Amenity ID ${id} deleted successfully.`);
   }
 }
